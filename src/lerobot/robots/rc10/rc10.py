@@ -150,7 +150,7 @@ class RC10(Robot):
         a_gripper = action["gripper.state"] 
 
         self._adapter.apply_action(a, a_gripper)
-        return {"tcp.delta": delta, "gripper.state": a_gripper}
+        return action
 
     def configure(self) -> None:
         """

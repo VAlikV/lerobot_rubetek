@@ -97,9 +97,9 @@ class Haptic(Teleoperator):
 
         # оставляем только XY, как в RealRobotEnv
         a = delta[:3] * self.cfg.scale
-        return {"tcp.delta_x": a[0],
-                "tcp.delta_y": a[1],
-                "tcp.delta_z": a[2],
+        return {"tcp.delta_x": float(a[0]),
+                "tcp.delta_y": float(a[1]),
+                "tcp.delta_z": float(a[2]),
                 "gripper.state": 0.0}
 
     def get_teleop_events(self) -> Dict[str, Any]:
