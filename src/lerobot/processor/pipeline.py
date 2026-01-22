@@ -1557,7 +1557,7 @@ class PolicyActionProcessorStep(ProcessorStep, ABC):
 class RewardProcessorStep(ProcessorStep, ABC):
     """An abstract `ProcessorStep` that specifically targets the reward in a transition."""
 
-    @abstractmethod
+    # @abstractmethod
     def reward(self, reward) -> float | torch.Tensor:
         """Processes a reward. Subclasses must implement this method.
 
@@ -1567,7 +1567,13 @@ class RewardProcessorStep(ProcessorStep, ABC):
         Returns:
             The processed reward.
         """
-        ...
+        return 0
+
+    def transform_features(
+            self, features: dict[PipelineFeatureType, dict[str, PolicyFeature]]
+        ) -> dict[PipelineFeatureType, dict[str, PolicyFeature]]:
+        """Returns the features without modification."""
+        return features
 
     def __call__(self, transition: EnvTransition) -> EnvTransition:
         """Applies the `reward` method to the transition's reward."""

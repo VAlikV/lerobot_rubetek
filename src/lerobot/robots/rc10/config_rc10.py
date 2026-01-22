@@ -6,7 +6,7 @@ from lerobot.cameras.opencv import OpenCVCameraConfig
 
 from .robot_adapter import RobotAdapter
 # from API.controller import TaskSpaceJogController
-from rc10_api.rc10_api.controller import TaskSpaceJogController
+from API.API.controller import TaskSpaceJogController
 
 @RobotConfig.register_subclass("rc10")
 @dataclass

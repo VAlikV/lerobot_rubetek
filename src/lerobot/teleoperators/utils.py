@@ -81,6 +81,20 @@ def make_teleoperator_from_config(config: TeleoperatorConfig) -> Teleoperator:
         from .reachy2_teleoperator import Reachy2Teleoperator
 
         return Reachy2Teleoperator(config)
+    
+    # =================================================
+    # =================================================
+    # =================================================
+
+    elif config.type == "haptic":
+        from .haptic.teleop_haptic import Haptic
+
+        return Haptic(config)
+
+    # =================================================
+    # =================================================
+    # =================================================
+
     else:
         try:
             return cast(Teleoperator, make_device_from_device_class(config))

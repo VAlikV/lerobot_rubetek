@@ -26,16 +26,17 @@ def main():
     fig, ax = plt.subplots()
 
     for i in range(len(dataset)):
-        image = tr(dataset[i]['observation.images.front'])
+        image = tr(dataset[i]['observation.image.front'])
         ax.clear()
         ax.imshow(image)
         ax.axis("off")
-        plt.pause(0.1)
+        plt.pause(0.2)
         print(i)
-        # print("Reward:", dataset[i]['next.reward'])
-        # print("Done:", dataset[i]['next.done'])
+        print("Reward:", dataset[i]['next.reward'])
+        print("Done:", dataset[i]['next.done'])
         # print("Penalty", dataset[i]['complementary_info.discrete_penalty'])
         print("Action", dataset[i]['action'])
+        # print(dataset[i].keys())
         print()
 
     plt.ioff()

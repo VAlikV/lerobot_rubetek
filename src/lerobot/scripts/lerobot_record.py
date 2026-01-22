@@ -385,6 +385,7 @@ def record_loop(
         if dataset is not None:
             action_frame = build_dataset_frame(dataset.features, action_values, prefix=ACTION)
             frame = {**observation_frame, **action_frame, "task": single_task}
+            print(frame)
             dataset.add_frame(frame)
 
         if display_data:
