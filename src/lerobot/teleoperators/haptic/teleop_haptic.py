@@ -55,6 +55,7 @@ class Haptic(Teleoperator):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.cfg.ip, self.cfg.port))
         self.sock.settimeout(0.005)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024) # 1024 размер в байтах (по стандарту там вроде 212992 (?))
         self._connected = True
 
     def disconnect(self) -> None:
@@ -76,7 +77,8 @@ class Haptic(Teleoperator):
             self.last_msg = arr
             return False, None
 
-        delta = arr - self.last_msg
+        delta = arr.copy()
+        delta[0:3] = delta[0:3] - self.last_msg[0:3]
         self.last_msg = arr
 
         return True, delta
@@ -97,10 +99,11 @@ class Haptic(Teleoperator):
 
         # оставляем только XY, как в RealRobotEnv
         a = delta[:3] * self.cfg.scale
+        g_a = delta[3]
         return {"tcp.delta_x": float(a[0]),
                 "tcp.delta_y": float(a[1]),
                 "tcp.delta_z": float(a[2]),
-                "gripper.state": 0.0}
+                "gripper.state": float(g_a)}
 
     def get_teleop_events(self) -> Dict[str, Any]:
         has_data, _ = self._read_udp_delta()

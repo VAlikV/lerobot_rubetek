@@ -26,7 +26,7 @@ def main():
     fig, ax = plt.subplots()
 
     for i in range(len(dataset)):
-        image = tr(dataset[i]['observation.image.front'])
+        image = tr(dataset[i]['observation.image.side'])
         ax.clear()
         ax.imshow(image)
         ax.axis("off")

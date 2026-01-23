@@ -16,6 +16,10 @@ class RC10Config(RobotConfig):
 
     action_scale: float = 100.0
 
+    gripper_device: str = "/dev/ttyUSB0"
+    gripper_boudrate: int = 115200
+    gripper_timeout: int = 1
+
     cameras: dict[str, CameraConfig] = field(
         default_factory={
             "cam_1": OpenCVCameraConfig(

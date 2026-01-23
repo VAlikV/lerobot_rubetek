@@ -8,7 +8,7 @@ from lerobot.envs.configs import (HILSerlRobotEnvConfig,
                                   GripperConfig,
                                   ResetConfig)
 from lerobot.rl.gym_manipulator import RobotEnv, make_robot_env
-from lerobot.rl.my_robot_env import RC10RobotEnv, make_rc10_robot_env
+from lerobot.rl.rc10_robot_env import RC10RobotEnv, make_rc10_robot_env
 from lerobot.cameras.opencv.configuration_opencv import OpenCVCameraConfig
 from lerobot.teleoperators.utils import TeleopEvents
 import torch
@@ -53,7 +53,9 @@ HF_REPO_ID = "local/test_demo"
 # ======================================================================================
 
 camera_config = {"front": OpenCVCameraConfig(
-        index_or_path=0, width=640, height=480, fps=FPS)
+        index_or_path=0, width=640, height=480, fps=FPS),
+        "side": OpenCVCameraConfig(
+        index_or_path=2, width=640, height=480, fps=FPS)
     }
 
 robot_config = RC10Config(action_scale=ROBOT_ACTION_SCALE,
@@ -111,8 +113,9 @@ env, teleop_device = make_rc10_robot_env(hilserl_robot_env_config)
 # Create the dataset where to store the data
 
 dataset_features = {'action': {'dtype': 'float32', 'shape': (4,), 'names': ['tcp.delta_x', 'tcp.delta_y', 'tcp.delta_z', 'gripper.state']}, 
-                    'observation.state': {'dtype': 'float32', 'shape': (1,3), 'names': ['tcp.x', 'tcp.y', 'tcp.z']}, 
-                    'observation.image.front': {'dtype': 'video', 'shape': (480, 640, 3), 'names': ['height', 'width', 'channels']}, 
+                    'observation.state': {'dtype': 'float32', 'shape': (1,4), 'names': ['tcp.x', 'tcp.y', 'tcp.z', 'gripper.state']}, 
+                    'observation.image.front': {'dtype': 'video', 'shape': (480, 640, 3), 'names': ['height', 'width', 'channels']},
+                    'observation.image.side': {'dtype': 'video', 'shape': (480, 640, 3), 'names': ['height', 'width', 'channels']}, 
                     'next.reward': {'dtype': 'float32', 'shape': (1,)}, 
                     'next.done': {'dtype': 'bool', 'shape': (1,)}}
 
@@ -163,7 +166,7 @@ for episode in range(MAX_EPISODES):
             is_intervention = teleop_events.get(TeleopEvents.IS_INTERVENTION, False)
             if is_intervention:
                 action_dict = teleop_device.get_action()
-                action = [action_dict["tcp.delta_x"], action_dict["tcp.delta_y"], action_dict["tcp.delta_z"], action_dict["gripper.state"]]
+                action = np.array([action_dict["tcp.delta_x"], action_dict["tcp.delta_y"], action_dict["tcp.delta_z"], action_dict["gripper.state"]], dtype=np.float32)
 
         # Step environment
         next_obs, _env_reward, terminated, truncated, _info = env.step(action)

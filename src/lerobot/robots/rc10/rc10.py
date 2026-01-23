@@ -8,6 +8,7 @@ from lerobot.cameras import make_cameras_from_configs
 
 from .config_rc10 import RC10Config
 from .robot_adapter import RobotAdapter
+from .gripper import Gripper
 
 class RC10(Robot):
     """
@@ -31,6 +32,13 @@ class RC10(Robot):
         self.cameras = make_cameras_from_configs(config.cameras)
         cam_features = {cam: (self.cameras[cam].height, self.cameras[cam].width, 3) for cam in self.cameras.keys()}
 
+        self.gripper = Gripper(device=self.config.gripper_device,
+                               boudrate=self.config.gripper_boudrate,
+                               timeout=self.config.gripper_timeout)
+        self.gripper.send(1)
+        self.gripper_state = 1
+        self.prev_gripper_state = 1
+
         self._obs_features = {
             # "state.joints_pos": (6,),
             # "state.joints_vel": (6,),
@@ -47,6 +55,8 @@ class RC10(Robot):
             "tcp.droll":   float,
             "tcp.dpitch":   float,
             "tcp.dyaw":   float,
+
+            "gripper.state": float,
 
             **cam_features
         }
@@ -132,6 +142,8 @@ class RC10(Robot):
             "tcp.droll":   o.tcp_vel[3],
             "tcp.dpitch":   o.tcp_vel[4],
             "tcp.dyaw":   o.tcp_vel[5],
+
+            "gripper.state": self.gripper_state,
         }
         
         for cam_key, cam in self.cameras.items():
@@ -147,7 +159,18 @@ class RC10(Robot):
         self._ensure()
         delta = np.asarray([action["tcp.delta_x"], action["tcp.delta_y"], action["tcp.delta_z"]], dtype=np.float32)
         a = delta / float(self.config.action_scale)
-        a_gripper = action["gripper.state"] 
+        a_gripper = action["gripper.state"]
+
+        if a_gripper <= 1: # Close
+            self.gripper_state = 0
+            if self.gripper_state != self.prev_gripper_state:
+                self.gripper.send(-1)
+        elif a_gripper > 1: # Open
+            self.gripper_state = 1
+            if self.gripper_state != self.prev_gripper_state:
+                self.gripper.send(1)
+
+        self.prev_gripper_state = self.gripper_state
 
         self._adapter.apply_action(a, a_gripper)
         return action

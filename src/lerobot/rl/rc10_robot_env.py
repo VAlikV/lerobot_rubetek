@@ -68,7 +68,7 @@ class RC10RobotEnv(gym.Env):
     def _get_observation(self) -> RobotObservation:
         """Get current robot observation including joint positions and camera images."""
         obs_dict = self.robot.get_observation()
-        agent_pos = np.array([obs_dict["tcp.x"], obs_dict["tcp.y"], obs_dict["tcp.z"]])
+        agent_pos = np.array([obs_dict["tcp.x"], obs_dict["tcp.y"], obs_dict["tcp.z"], obs_dict["gripper.state"]])
 
         images = {key: obs_dict[key] for key in self._image_keys}
 
